@@ -1,8 +1,8 @@
 name: Contrôle
 
+# lancement manuel (onglet Actions) ; repasser à « push » une fois GitHub Actions disponible sur le compte
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   modele-postgis:

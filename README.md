@@ -1,7 +1,5 @@
 # SIG DFCI · Landiras 2022
 
-[![Contrôle](https://github.com/jauresmas/sig-dfci-landiras/actions/workflows/controle.yml/badge.svg)](https://github.com/jauresmas/sig-dfci-landiras/actions/workflows/controle.yml)
-
 Un SIG de **défense des forêts contre l'incendie** construit uniquement avec des données ouvertes, sur le
 massif des Landes de Gascogne autour de l'incendie de Landiras (Gironde, 2022). Il couvre la cartographie
 post-incendie par télédétection, le calcul des **obligations légales de débroussaillement (OLD)** à la
@@ -78,8 +76,8 @@ workbench FME.
 - **vues de pilotage** : avancement des contrôles par commune, points d'eau à visiter avant la saison,
   impasses sans aire de retournement.
 
-`sql/tests_schema.sql` vérifie ces comportements. L'intégration continue GitHub Actions monte une base
-PostGIS et exécute le schéma puis les tests à chaque push.
+`sql/tests_schema.sql` vérifie ces comportements (7 tests). Le workflow GitHub Actions `controle.yml` monte
+une base PostGIS, exécute le schéma puis les tests, et contrôle le code Python avec ruff.
 
 ## Contrôle terrain avec QField
 
