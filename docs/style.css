@@ -131,12 +131,12 @@ h2 {
 .barre .val { text-align: right; font-variant-numeric: tabular-nums; color: var(--encre-douce); }
 
 .note { font-size: 13px; color: var(--encre-douce); }
-.alerte { padding: 10px 12px; background: var(--braise-pale); border-left: 3px solid var(--braise); color: var(--encre); }
+.alerte { padding: 12px 14px; background: var(--braise-pale); border-radius: 4px; color: var(--encre); }
 
 .table-defile { max-height: 300px; overflow-y: auto; border: 1px solid var(--trait); }
 table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
-th { position: sticky; top: 0; background: var(--surface); text-align: left; font-weight: 600; padding: 7px 8px; border-bottom: 1px solid var(--trait); }
-td { padding: 6px 8px; border-bottom: 1px solid var(--trait); }
+th { position: sticky; top: 0; background: var(--surface); text-align: left; font-weight: 600; padding: 8px 12px; border-bottom: 1px solid var(--trait); }
+td { padding: 7px 12px; border-bottom: 1px solid var(--trait); }
 th:not(:first-child), td:not(:first-child) { text-align: right; }
 tbody tr { cursor: pointer; }
 tbody tr:hover { background: var(--papier); }
@@ -203,7 +203,7 @@ a { color: var(--braise); }
 .fiche dl { display: grid; grid-template-columns: auto auto; gap: 2px 12px; margin: 0; }
 .fiche dt { color: #5a655e; }
 .fiche dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-.pastille { display: inline-block; padding: 1px 7px; border-radius: 10px; color: #fff; font-size: 12px; font-weight: 600; }
+.pastille { display: inline-block; padding: 2px 9px; margin-bottom: 6px; border-radius: 10px; color: #fff; font-size: 12px; font-weight: 600; }
 
 @media (max-width: 800px) {
   body { grid-template-columns: 1fr; grid-template-rows: 52dvh 1fr; }
