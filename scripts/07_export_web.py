@@ -15,6 +15,7 @@ import rasterio
 from PIL import Image
 from rasterio.warp import Resampling, calculate_default_transform, reproject, transform_bounds
 from shapely import set_precision
+from shapely.geometry import MultiPolygon, Polygon
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import config as C
@@ -37,6 +38,12 @@ def geojson(gdf, nom, simplifier=0, colonnes=None, precision=5):
     chemin = W / f"{nom}.geojson"
     chemin.write_text(g.to_json(drop_id=True, ensure_ascii=False), encoding="utf-8")
     print(f"   {nom}.geojson  {chemin.stat().st_size / 1e6:.2f} Mo  ({len(g):,} entités)")
+
+
+def sans_trous(g):
+    if g.geom_type == "Polygon":
+        return Polygon(g.exterior)
+    return MultiPolygon([Polygon(p.exterior) for p in g.geoms])
 
 
 def image_severite():
@@ -72,6 +79,20 @@ def main():
     geojson(pts, "old_points", 0, ["id_obligation", "commune", "nb_batiments", "surface_old_m2",
                                    "surface_tiers_non_batis_m2", "en_lisiere", "dist_massif_m",
                                    "part_resineux", "dist_point_eau_m", "score_priorite", "priorite"])
+
+    # rayons OLD de 50 m, un fichier par commune, chargés par la carte seulement aux grands zooms
+    (W / "old").mkdir(exist_ok=True)
+    poly = old[["id_obligation", "code_insee", "priorite", "geometry"]].copy()
+    # contour extérieur seul (les bâtiments sont dessinés par le Plan IGN) et simplification à 3 m,
+    # invisibles à l'échelle d'un bourg mais qui divisent le poids des fichiers
+    poly["geometry"] = poly.geometry.apply(sans_trous).simplify(3.0, preserve_topology=True)
+    for insee, g in poly.groupby("code_insee"):
+        g = g.to_crs(4326)
+        g["geometry"] = set_precision(g.geometry.values, 1e-5)
+        (W / "old" / f"{insee}.geojson").write_text(
+            g.drop(columns="code_insee").to_json(drop_id=True, ensure_ascii=False), encoding="utf-8")
+    taille = sum(f.stat().st_size for f in (W / "old").glob("*.geojson")) / 1e6
+    print(f"   old/<commune>.geojson  {taille:.2f} Mo au total ({poly.code_insee.nunique()} communes)")
 
     piste = gpd.read_file(BASE, layer="piste")
     geojson(piste, "pistes", 4, ["gabarit", "revetement", "debroussaillee", "longueur_m"])

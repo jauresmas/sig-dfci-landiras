@@ -1,8 +1,12 @@
 // Carte web du projet SIG DFCI Landiras (MapLibre GL, données exportées par scripts/07_export_web.py)
 
-const WMTS = (couche, format) =>
+const WMTS = (couche, format, style = "normal", grille = "PM") =>
   "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=" + couche +
-  "&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=" + format;
+  "&STYLE=" + encodeURIComponent(style) + "&TILEMATRIXSET=" + grille +
+  "&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=" + format;
+
+// rayons OLD de 50 m : un fichier par commune, chargé seulement à partir de ce zoom
+const ZOOM_PARCELLE = 13;
 
 const PRIORITE = { "faible": "#b9c2a8", "moyenne": "#e8b13c", "forte": "#e0672b", "très forte": "#9e1b1b" };
 const SEVERITE = { 1: "#c9d3a8", 2: "#fed976", 3: "#fd8d3c", 4: "#e31a1c", 5: "#67000d", 0: "#bdbdbd" };
@@ -25,6 +29,11 @@ const carte = new maplibregl.Map({
               maxzoom: 19, attribution: "© IGN Géoplateforme" },
       ortho: { type: "raster", tiles: [WMTS("ORTHOIMAGERY.ORTHOPHOTOS", "image/jpeg")], tileSize: 256,
                maxzoom: 19, attribution: "© IGN Géoplateforme" },
+      cadastre: { type: "raster", tileSize: 256, minzoom: 0, maxzoom: 19,
+                  tiles: [WMTS("CADASTRALPARCELS.PARCELLAIRE_EXPRESS", "image/png", "PCI vecteur", "PM_0_19")],
+                  attribution: "Cadastre © DGFiP / IGN" },
+      batiments: { type: "raster", tileSize: 256, minzoom: 6, maxzoom: 18,
+                   tiles: [WMTS("BUILDINGS.BUILDINGS", "image/png", "normal", "PM_6_18")] },
     },
     layers: [
       { id: "plan", type: "raster", source: "plan", paint: { "raster-saturation": -0.7, "raster-opacity": 0.85 } },
@@ -49,7 +58,7 @@ new ResizeObserver(() => {
 
 const COUCHES = {
   incendie: ["severite", "incendie-contour"],
-  old: ["old-points", "communes-contour", "incendie-contour-leger"],
+  old: ["old-poly-fond", "old-poly-contour", "cadastre", "batiments", "old-points", "communes-contour", "incendie-contour-leger"],
   carreaux: ["carreaux-fond", "carreaux-contour", "carreaux-etiquette", "pistes", "points-eau", "incendie-contour-leger"],
   methode: ["severite", "incendie-contour", "pistes", "points-eau"],
 };
@@ -57,7 +66,8 @@ const COUCHES = {
 const LEGENDES = {
   incendie: [["Forte", SEVERITE[5]], ["Modérée-forte", SEVERITE[4]], ["Modérée-faible", SEVERITE[3]],
              ["Faible", SEVERITE[2]], ["Non brûlé", SEVERITE[1]]],
-  old: Object.entries(PRIORITE).map(([k, c]) => ["Priorité " + k, c, "rond"]).reverse(),
+  old: [...Object.entries(PRIORITE).map(([k, c]) => ["Priorité " + k, c, "rond"]).reverse(),
+        ["Parcelles (zoom ≥ 15)", "#7a7a7a", "trait"]],
   carreaux: [["Indice ≥ 50", "#980043"], ["45–50", "#df65b0"], ["40–45", "#c994c7"], ["< 40", "#d4b9da"],
              ["Piste DFCI", "#8a4b20", "trait"], ["Point d'eau", "#1c6fb8", "rond"]],
   methode: [["Sévérité (dNBR)", SEVERITE[4]], ["Piste DFCI", "#8a4b20", "trait"], ["Point d'eau", "#1c6fb8", "rond"]],
@@ -74,6 +84,7 @@ document.querySelectorAll(".onglets button").forEach((b) => b.addEventListener("
   document.querySelectorAll(".contenu").forEach((s) => { s.hidden = s.id !== "onglet-" + b.dataset.onglet; });
   ongletCourant = b.dataset.onglet;
   afficher(ongletCourant);
+  if (communesGeo) chargerOldVisibles();
 }));
 
 document.querySelectorAll(".fonds button").forEach((b) => b.addEventListener("click", () => {
@@ -112,6 +123,9 @@ carte.once("style.load", async () => {
   const vigilance = ["step", ["coalesce", ["get", "indice_vigilance"], 0], "#f1eef6"];
   VIGILANCE.slice(0, -1).forEach(([seuil], i) => vigilance.push(seuil, VIGILANCE[i + 1][1]));
 
+  carte.addSource("old-poly", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+  fichesOld = new Map(old.features.map((f) => [f.properties.id_obligation, f.properties]));
+
   carte.addLayer({ id: "severite", type: "raster", source: "severite", paint: { "raster-opacity": 0.9, "raster-resampling": "nearest" } });
   carte.addLayer({ id: "carreaux-fond", type: "fill", source: "carreaux",
     filter: ["has", "indice_vigilance"], paint: { "fill-color": vigilance, "fill-opacity": 0.72 } });
@@ -129,14 +143,27 @@ carte.once("style.load", async () => {
   carte.addLayer({ id: "points-eau", type: "circle", source: "eau",
     paint: { "circle-color": "#1c6fb8", "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 2.5, 14, 6],
              "circle-stroke-color": "#ffffff", "circle-stroke-width": 1 } });
-  carte.addLayer({ id: "old-points", type: "circle", source: "old",
+  const couleurPriorite = ["match", ["get", "priorite"], ...Object.entries(PRIORITE).flat(), "#999999"];
+  // priorités fortes dessinées au-dessus des faibles là où les rayons se chevauchent
+  const rangPriorite = ["match", ["get", "priorite"], "faible", 0, "moyenne", 1, "forte", 2, "très forte", 3, 0];
+  carte.addLayer({ id: "old-poly-fond", type: "fill", source: "old-poly", minzoom: ZOOM_PARCELLE,
+    layout: { "fill-sort-key": rangPriorite },
+    paint: { "fill-color": couleurPriorite,
+             "fill-opacity": ["match", ["get", "priorite"], "faible", 0.12, "moyenne", 0.22, 0.3] } });
+  carte.addLayer({ id: "old-poly-contour", type: "line", source: "old-poly", minzoom: ZOOM_PARCELLE,
+    layout: { "line-sort-key": rangPriorite },
+    paint: { "line-color": couleurPriorite, "line-opacity": 0.8,
+             "line-width": ["interpolate", ["linear"], ["zoom"], 13, 0.3, 17, 1.2] } });
+  // cadastre en gris et bâtiments en noir, par-dessus les rayons (comme la carte QGIS)
+  carte.addLayer({ id: "cadastre", type: "raster", source: "cadastre", minzoom: 15,
+    paint: { "raster-saturation": -1, "raster-contrast": 0.3, "raster-opacity": 0.6 } });
+  carte.addLayer({ id: "batiments", type: "raster", source: "batiments", minzoom: 14,
+    paint: { "raster-saturation": -1, "raster-brightness-max": 0.35, "raster-opacity": 0.9 } });
+  carte.addLayer({ id: "old-points", type: "circle", source: "old", maxzoom: ZOOM_PARCELLE,
     paint: {
-      "circle-color": ["match", ["get", "priorite"], ...Object.entries(PRIORITE).flat(), "#999999"],
-      // rayon proche des 50 m réels aux grands zooms (0,43 m/px au zoom 18 à cette latitude)
-      "circle-radius": ["interpolate", ["exponential", 2], ["zoom"], 9, 1.4, 12, 3, 15, 16, 18, 128],
-      "circle-opacity": ["interpolate", ["linear"], ["zoom"], 9, 0.9, 15, 0.45],
-      "circle-stroke-color": ["match", ["get", "priorite"], ...Object.entries(PRIORITE).flat(), "#999999"],
-      "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 12, 0, 15, 1],
+      "circle-color": couleurPriorite,
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 1.4, 13, 4],
+      "circle-opacity": 0.9,
     } });
 
   remplirPanneau();
@@ -145,7 +172,33 @@ carte.once("style.load", async () => {
   cadrageInitial = emprise(incendie.features);
   carte.resize();
   carte.fitBounds(cadrageInitial, { padding: 30, animate: false });
+  carte.on("moveend", chargerOldVisibles);
 });
+
+// --- rayons OLD à la parcelle, chargés commune par commune selon la vue
+let fichesOld = new Map();
+const oldCharges = new Map();  // code INSEE -> promesse de chargement
+const oldPoly = { type: "FeatureCollection", features: [] };
+
+async function chargerOldVisibles() {
+  if (ongletCourant !== "old" || carte.getZoom() < ZOOM_PARCELLE) return;
+  const vue = carte.getBounds();
+  const nouvelles = communesGeo.features.filter((f) => {
+    const b = emprise([f]);
+    return !oldCharges.has(f.properties.code_insee) &&
+      b.getWest() < vue.getEast() && b.getEast() > vue.getWest() &&
+      b.getSouth() < vue.getNorth() && b.getNorth() > vue.getSouth();
+  });
+  await Promise.all(nouvelles.map((f) => {
+    const code = f.properties.code_insee;
+    const p = charger(`old/${code}.geojson`)
+      .then((geo) => { oldPoly.features.push(...geo.features); })
+      .catch(() => oldCharges.delete(code));  // nouvel essai au prochain déplacement
+    oldCharges.set(code, p);
+    return p;
+  }));
+  if (nouvelles.length) carte.getSource("old-poly").setData(oldPoly);
+}
 
 function remplirPanneau() {
   const s = synthese;
@@ -219,8 +272,10 @@ function brancherInteractions() {
 
   const popup = (e, html) => new maplibregl.Popup({ maxWidth: "290px" }).setLngLat(e.lngLat).setHTML(html).addTo(carte);
 
-  carte.on("click", "old-points", (e) => {
-    const p = e.features[0].properties;
+  // points (vue d'ensemble) et rayons de 50 m (zoom à la parcelle) ouvrent la même fiche
+  ["old-points", "old-poly-fond"].forEach((id) => carte.on("click", id, (e) => {
+    const p = fichesOld.get(e.features[0].properties.id_obligation);
+    if (!p) return;
     const pastille = `<span class="pastille" style="background:${PRIORITE[p.priorite]}">Priorité ${echapper(p.priorite)} · ${String(p.score_priorite).replace(".", ",")}/10</span>`;
     popup(e, fiche("Parcelle " + p.id_obligation, [
       ["Commune", p.commune], ["Constructions", p.nb_batiments],
@@ -231,7 +286,7 @@ function brancherInteractions() {
       ["Résineux dans 200 m", pct(p.part_resineux)],
       ["Point d'eau recensé", p.dist_point_eau_m != null ? nf.format(p.dist_point_eau_m) + " m" : "–"],
     ], pastille));
-  });
+  }));
 
   carte.on("click", "carreaux-fond", (e) => {
     const p = e.features[0].properties;
@@ -251,7 +306,7 @@ function brancherInteractions() {
       ["Longueur", nf.format(Math.round(p.longueur_m)) + " m"]]));
   });
 
-  ["old-points", "carreaux-fond", "pistes"].forEach((id) => {
+  ["old-points", "old-poly-fond", "carreaux-fond", "pistes"].forEach((id) => {
     carte.on("mouseenter", id, () => { carte.getCanvas().style.cursor = "pointer"; });
     carte.on("mouseleave", id, () => { carte.getCanvas().style.cursor = ""; });
   });
