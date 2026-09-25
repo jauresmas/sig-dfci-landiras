@@ -1,0 +1,10 @@
+line-length = 120
+target-version = "py310"
+
+[lint]
+select = ["E", "F", "W", "I"]
+# les scripts ajoutent la racine au chemin avant d'importer config
+ignore = ["E402"]
+
+[lint.isort]
+known-first-party = ["config"]

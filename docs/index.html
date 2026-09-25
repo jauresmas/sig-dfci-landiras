@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SIG DFCI · Landiras 2022</title>
+  <meta name="description" content="Incendie de Landiras 2022, obligations légales de débroussaillement et défendabilité du massif landais : un SIG DFCI construit uniquement avec des données ouvertes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+  <aside class="panneau" aria-label="Analyse">
+    <header class="entete">
+      <p class="surtitre">SIG DFCI · Massif des Landes de Gascogne</p>
+      <h1>Landiras, après le feu</h1>
+      <p class="chapeau">Sévérité de l'incendie de 2022, obligations légales de débroussaillement et
+        défendabilité du massif, calculées uniquement avec des données ouvertes.</p>
+    </header>
+
+    <nav class="onglets" role="tablist">
+      <button role="tab" aria-selected="true" data-onglet="incendie">Incendie</button>
+      <button role="tab" aria-selected="false" data-onglet="old">OLD</button>
+      <button role="tab" aria-selected="false" data-onglet="carreaux">Défendabilité</button>
+      <button role="tab" aria-selected="false" data-onglet="methode">Méthode</button>
+    </nav>
+
+    <section class="contenu" id="onglet-incendie" role="tabpanel">
+      <div class="chiffre-cle"><span id="k-feu">–</span><small>ha parcourus</small></div>
+      <p>Complexe de Landiras : départ le 12 juillet 2022, reprise le 9 août vers Hostens et Belin-Béliet.
+        Périmètre et sévérité reconstitués par <strong>dNBR Sentinel-2</strong>, sans relevé terrain.</p>
+      <h2>Sévérité</h2>
+      <div id="barres-severite" class="barres"></div>
+      <p class="note">Le dNBR compare l'état de la végétation avant (<span id="k-avant"></span>) et après
+        (<span id="k-apres"></span>) le feu. Les cultures récoltées entre les deux dates (RPG 2022) et les
+        coupes rases sont écartées pour ne pas être confondues avec du brûlé.</p>
+    </section>
+
+    <section class="contenu" id="onglet-old" role="tabpanel" hidden>
+      <div class="grille-chiffres">
+        <div class="chiffre"><span id="k-obl">–</span><small>obligations (parcelles bâties)</small></div>
+        <div class="chiffre"><span id="k-old-ha">–</span><small>ha nets à débroussailler</small></div>
+        <div class="chiffre"><span id="k-voisins">–</span><small>ha chez des voisins non bâtis</small></div>
+        <div class="chiffre"><span id="k-lisiere">–</span><small>constructions « en lisière »</small></div>
+      </div>
+      <p>Autour de chaque construction située à moins de 200 m d'un massif, 50 m doivent être débroussaillés,
+        y compris chez le voisin. Chaque parcelle bâtie reçoit un <strong>score de priorité de contrôle</strong>
+        (exposition, résineux, isolement, eau).</p>
+      <h2>Par commune</h2>
+      <div class="table-defile"><table id="table-communes">
+        <thead><tr><th>Commune</th><th>Oblig.</th><th>ha nets</th><th>Prioritaires</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <p class="note">Cliquez sur une commune pour zoomer, puis sur un point pour lire sa fiche.</p>
+    </section>
+
+    <section class="contenu" id="onglet-carreaux" role="tabpanel" hidden>
+      <div class="grille-chiffres">
+        <div class="chiffre"><span id="k-massif">–</span><small>ha de massif</small></div>
+        <div class="chiffre"><span id="k-pistes">–</span><small>km de pistes DFCI recensées</small></div>
+        <div class="chiffre"><span id="k-voie">–</span><small>du massif à plus de 500 m d'une voie</small></div>
+        <div class="chiffre"><span id="k-eau">–</span><small>à plus de 1 km d'un point d'eau recensé</small></div>
+      </div>
+      <p>Indice de vigilance par carreau DFCI de 2 km : accès, eau, part de résineux et pression bâtie.</p>
+      <h2>Carreaux les plus vigilants</h2>
+      <ol id="liste-carreaux" class="liste-carreaux"></ol>
+      <p class="note alerte">Ces chiffres mesurent d'abord un <strong>manque de données ouvertes</strong> :
+        l'attribut « piste DFCI » de la BD TOPO couvre 558 km côté Landes mais seulement 6 km côté Gironde,
+        et les points d'eau publiés sont surtout des hydrants de bourg (OpenStreetMap). Première action :
+        intégrer les inventaires des ASA DFCI et du SDIS.</p>
+    </section>
+
+    <section class="contenu" id="onglet-methode" role="tabpanel" hidden>
+      <h2>Chaîne de traitement</h2>
+      <ol class="etapes">
+        <li><b>Téléchargement</b> : WFS Géoplateforme IGN, Overpass OSM, cadastre Etalab.</li>
+        <li><b>Sévérité</b> : NBR Sentinel-2 L2A (Planetary Computer), dNBR, classes de Key &amp; Benson.</li>
+        <li><b>OLD</b> : zone d'application officielle, rayons de 50 m par parcelle bâtie, débords cadastraux, score.</li>
+        <li><b>Base DFCI</b> : GeoPackage à listes de valeurs et modèle PostGIS (déclencheurs, vues).</li>
+        <li><b>Diagnostic</b> : transformées de distance à 20 m par carreau DFCI.</li>
+        <li><b>Cartographie</b> : PyQGIS, mises en page A3 et atlas par carreau de 20 km.</li>
+        <li><b>Terrain</b> : projet QField de contrôle OLD, formulaire contraint.</li>
+      </ol>
+      <p>Code, modèle de données et cartes PDF :
+        <a href="https://github.com/jauresmas/sig-dfci-landiras">github.com/jauresmas/sig-dfci-landiras</a></p>
+      <p class="note">Travail personnel de démonstration, sans valeur réglementaire. Les obligations réelles
+        dépendent de l'arrêté préfectoral, des zonages d'urbanisme et des arrêtés municipaux.</p>
+    </section>
+
+    <footer class="pied">
+      <div id="legende" class="legende"></div>
+      <p>Données : IGN, Copernicus, OpenStreetMap, DGFiP/Etalab · J. Daa-Hingbanon, 2026</p>
+    </footer>
+  </aside>
+
+  <main class="carte-zone">
+    <div id="carte" role="region" aria-label="Carte"></div>
+    <div class="fonds" role="group" aria-label="Fond de carte">
+      <button data-fond="plan" aria-pressed="true">Plan</button>
+      <button data-fond="ortho" aria-pressed="false">Photo</button>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

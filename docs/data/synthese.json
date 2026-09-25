@@ -1,0 +1,270 @@
+{
+ "images": {
+  "avant": "2022-07-02",
+  "apres": "2022-09-20",
+  "orbite": "R094"
+ },
+ "severite_coins": [
+  [
+   -0.797953583054811,
+   44.59237083745012
+  ],
+  [
+   -0.4340941123874298,
+   44.59237083745012
+  ],
+  [
+   -0.4340941123874298,
+   44.43292021053457
+  ],
+  [
+   -0.797953583054811,
+   44.43292021053457
+  ]
+ ],
+ "incendie": {
+  "surface_ha": 21439,
+  "classes": [
+   {
+    "code": 1,
+    "classe": "Non brûlé / repousse",
+    "surface_ha": 851
+   },
+   {
+    "code": 2,
+    "classe": "Sévérité faible",
+    "surface_ha": 1973
+   },
+   {
+    "code": 3,
+    "classe": "Sévérité modérée-faible",
+    "surface_ha": 5495
+   },
+   {
+    "code": 4,
+    "classe": "Sévérité modérée-forte",
+    "surface_ha": 8017
+   },
+   {
+    "code": 5,
+    "classe": "Sévérité forte",
+    "surface_ha": 4972
+   },
+   {
+    "code": 0,
+    "classe": "Cultures annuelles (non évaluées)",
+    "surface_ha": 93
+   }
+  ]
+ },
+ "old": {
+  "communes": 15,
+  "obligations": 11718,
+  "constructions": 19406,
+  "surface_nette_ha": 4405,
+  "chez_voisins_non_batis_ha": 2125,
+  "en_lisiere": 3097,
+  "priorites": {
+   "faible": 4689,
+   "moyenne": 4132,
+   "forte": 1913,
+   "très forte": 984
+  },
+  "par_commune": [
+   {
+    "commune": "Belin-Béliet",
+    "obligations": 2861,
+    "constructions": 4727,
+    "surface_nette_ha": 939.5,
+    "dont_chez_voisins_non_batis_ha": 374.9,
+    "en_lisiere": 487,
+    "priorite_forte_ou_plus": 537
+   },
+   {
+    "commune": "Landiras",
+    "obligations": 1476,
+    "constructions": 2308,
+    "surface_nette_ha": 425.2,
+    "dont_chez_voisins_non_batis_ha": 240.5,
+    "en_lisiere": 542,
+    "priorite_forte_ou_plus": 185
+   },
+   {
+    "commune": "Saint-Symphorien",
+    "obligations": 1132,
+    "constructions": 2086,
+    "surface_nette_ha": 463.1,
+    "dont_chez_voisins_non_batis_ha": 199.0,
+    "en_lisiere": 218,
+    "priorite_forte_ou_plus": 344
+   },
+   {
+    "commune": "Cabanac-et-Villagrains",
+    "obligations": 1111,
+    "constructions": 1771,
+    "surface_nette_ha": 372.3,
+    "dont_chez_voisins_non_batis_ha": 171.5,
+    "en_lisiere": 222,
+    "priorite_forte_ou_plus": 236
+   },
+   {
+    "commune": "Saugnac-et-Muret",
+    "obligations": 988,
+    "constructions": 1504,
+    "surface_nette_ha": 397.7,
+    "dont_chez_voisins_non_batis_ha": 188.7,
+    "en_lisiere": 231,
+    "priorite_forte_ou_plus": 284
+   },
+   {
+    "commune": "Hostens",
+    "obligations": 925,
+    "constructions": 1479,
+    "surface_nette_ha": 283.9,
+    "dont_chez_voisins_non_batis_ha": 133.7,
+    "en_lisiere": 197,
+    "priorite_forte_ou_plus": 181
+   },
+   {
+    "commune": "Saint-Magne",
+    "obligations": 721,
+    "constructions": 1157,
+    "surface_nette_ha": 311.1,
+    "dont_chez_voisins_non_batis_ha": 150.8,
+    "en_lisiere": 179,
+    "priorite_forte_ou_plus": 209
+   },
+   {
+    "commune": "Budos",
+    "obligations": 565,
+    "constructions": 922,
+    "surface_nette_ha": 212.5,
+    "dont_chez_voisins_non_batis_ha": 133.9,
+    "en_lisiere": 285,
+    "priorite_forte_ou_plus": 136
+   },
+   {
+    "commune": "Louchats",
+    "obligations": 456,
+    "constructions": 871,
+    "surface_nette_ha": 236.7,
+    "dont_chez_voisins_non_batis_ha": 126.2,
+    "en_lisiere": 173,
+    "priorite_forte_ou_plus": 210
+   },
+   {
+    "commune": "Balizac",
+    "obligations": 375,
+    "constructions": 650,
+    "surface_nette_ha": 165.8,
+    "dont_chez_voisins_non_batis_ha": 89.4,
+    "en_lisiere": 149,
+    "priorite_forte_ou_plus": 120
+   },
+   {
+    "commune": "Moustey",
+    "obligations": 317,
+    "constructions": 595,
+    "surface_nette_ha": 215.1,
+    "dont_chez_voisins_non_batis_ha": 116.7,
+    "en_lisiere": 151,
+    "priorite_forte_ou_plus": 192
+   },
+   {
+    "commune": "Guillos",
+    "obligations": 294,
+    "constructions": 504,
+    "surface_nette_ha": 117.7,
+    "dont_chez_voisins_non_batis_ha": 65.9,
+    "en_lisiere": 94,
+    "priorite_forte_ou_plus": 82
+   },
+   {
+    "commune": "Mano",
+    "obligations": 182,
+    "constructions": 283,
+    "surface_nette_ha": 107.1,
+    "dont_chez_voisins_non_batis_ha": 58.0,
+    "en_lisiere": 76,
+    "priorite_forte_ou_plus": 91
+   },
+   {
+    "commune": "Le Tuzan",
+    "obligations": 174,
+    "constructions": 304,
+    "surface_nette_ha": 66.8,
+    "dont_chez_voisins_non_batis_ha": 28.7,
+    "en_lisiere": 32,
+    "priorite_forte_ou_plus": 23
+   },
+   {
+    "commune": "Origne",
+    "obligations": 141,
+    "constructions": 245,
+    "surface_nette_ha": 90.0,
+    "dont_chez_voisins_non_batis_ha": 47.5,
+    "en_lisiere": 61,
+    "priorite_forte_ou_plus": 67
+   }
+  ]
+ },
+ "carreaux": {
+  "nombre": 347,
+  "massif_ha": 117300,
+  "pistes_dfci_km": 524,
+  "points_eau": 201,
+  "part_loin_voie": 0.007,
+  "part_loin_piste": 0.862,
+  "part_loin_eau": 0.866,
+  "plus_vigilants": [
+   {
+    "code": "DE82C8",
+    "indice_vigilance": 62.0,
+    "constructions": 654,
+    "part_resineux": 0.669
+   },
+   {
+    "code": "DE44C5",
+    "indice_vigilance": 60.0,
+    "constructions": 439,
+    "part_resineux": 0.613
+   },
+   {
+    "code": "DE84B1",
+    "indice_vigilance": 56.0,
+    "constructions": 241,
+    "part_resineux": 0.6
+   },
+   {
+    "code": "DE44C6",
+    "indice_vigilance": 55.0,
+    "constructions": 299,
+    "part_resineux": 0.567
+   },
+   {
+    "code": "DE44C3",
+    "indice_vigilance": 54.0,
+    "constructions": 272,
+    "part_resineux": 0.443
+   },
+   {
+    "code": "DE42E7",
+    "indice_vigilance": 54.0,
+    "constructions": 274,
+    "part_resineux": 0.431
+   },
+   {
+    "code": "DE84B5",
+    "indice_vigilance": 53.0,
+    "constructions": 386,
+    "part_resineux": 0.328
+   },
+   {
+    "code": "DE84C1",
+    "indice_vigilance": 53.0,
+    "constructions": 837,
+    "part_resineux": 0.315
+   }
+  ]
+ }
+}

@@ -1,0 +1,219 @@
+:root {
+  --papier: #f3f0e8;
+  --surface: #fbfaf6;
+  --encre: #1c2420;
+  --encre-douce: #5a655e;
+  --trait: #d9d4c7;
+  --pin: #2f4a3a;
+  --braise: #b8431c;
+  --braise-pale: #f6e3d8;
+  --eau: #1c6fb8;
+  --focus: #b8431c;
+  --titre: "Barlow Semi Condensed", "Arial Narrow", sans-serif;
+  --texte: "Barlow", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --papier: #151a17;
+    --surface: #1c231f;
+    --encre: #e9e6dd;
+    --encre-douce: #a4ada6;
+    --trait: #333d37;
+    --pin: #9cc3a9;
+    --braise: #f08a5d;
+    --braise-pale: #3a2419;
+    --eau: #6fb2ec;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--papier);
+  color: var(--encre);
+  font: 15px/1.5 var(--texte);
+}
+
+body {
+  display: grid;
+  grid-template-columns: minmax(340px, 410px) 1fr;
+  height: 100dvh;
+}
+
+.panneau {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--trait);
+  background: var(--surface);
+}
+
+.entete { padding: 22px 24px 14px; }
+.surtitre {
+  margin: 0 0 6px;
+  font: 600 12px/1 var(--titre);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--braise);
+}
+h1 {
+  margin: 0;
+  font: 700 32px/1.05 var(--titre);
+  letter-spacing: -.01em;
+}
+.chapeau { margin: 10px 0 0; color: var(--encre-douce); }
+
+.onglets {
+  display: flex;
+  gap: 2px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--trait);
+}
+.onglets button {
+  flex: 1;
+  padding: 10px 4px 11px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--encre-douce);
+  font: 600 15px/1 var(--titre);
+  cursor: pointer;
+}
+.onglets button[aria-selected="true"] { color: var(--encre); border-bottom-color: var(--braise); }
+.onglets button:hover { color: var(--encre); }
+button:focus-visible, a:focus-visible, tr:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.contenu {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px 24px 8px;
+}
+.contenu p { margin: 0 0 12px; }
+h2 {
+  margin: 20px 0 10px;
+  font: 600 13px/1 var(--titre);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--encre-douce);
+}
+
+.chiffre-cle span {
+  display: block;
+  font: 700 56px/1 var(--titre);
+  color: var(--braise);
+  font-variant-numeric: tabular-nums;
+}
+.chiffre-cle small, .chiffre small { color: var(--encre-douce); font-size: 13px; }
+.chiffre-cle { margin-bottom: 14px; }
+
+.grille-chiffres {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 18px;
+  margin-bottom: 16px;
+}
+.chiffre span {
+  display: block;
+  font: 700 28px/1.05 var(--titre);
+  font-variant-numeric: tabular-nums;
+}
+
+.barres { display: grid; gap: 7px; }
+.barre { display: grid; grid-template-columns: 118px 1fr 58px; align-items: center; gap: 8px; font-size: 13px; }
+.barre .piste { height: 12px; background: var(--papier); border-radius: 2px; overflow: hidden; }
+.barre .rempli { height: 100%; }
+.barre .val { text-align: right; font-variant-numeric: tabular-nums; color: var(--encre-douce); }
+
+.note { font-size: 13px; color: var(--encre-douce); }
+.alerte { padding: 10px 12px; background: var(--braise-pale); border-left: 3px solid var(--braise); color: var(--encre); }
+
+.table-defile { max-height: 300px; overflow-y: auto; border: 1px solid var(--trait); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+th { position: sticky; top: 0; background: var(--surface); text-align: left; font-weight: 600; padding: 7px 8px; border-bottom: 1px solid var(--trait); }
+td { padding: 6px 8px; border-bottom: 1px solid var(--trait); }
+th:not(:first-child), td:not(:first-child) { text-align: right; }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: var(--papier); }
+
+.liste-carreaux { margin: 0; padding: 0; list-style: none; counter-reset: c; }
+.liste-carreaux li {
+  display: grid;
+  grid-template-columns: 26px 70px 1fr auto;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--trait);
+  cursor: pointer;
+  counter-increment: c;
+}
+.liste-carreaux li::before { content: counter(c); color: var(--encre-douce); font-size: 12px; }
+.liste-carreaux b { font-family: var(--titre); font-size: 16px; }
+.liste-carreaux .detail { color: var(--encre-douce); font-size: 12.5px; }
+.liste-carreaux .indice { font: 700 18px var(--titre); color: #980043; }
+@media (prefers-color-scheme: dark) { .liste-carreaux .indice { color: #f06bb0; } }
+
+.etapes { padding-left: 20px; }
+.etapes li { margin-bottom: 8px; }
+a { color: var(--braise); }
+
+.pied { padding: 12px 24px 14px; border-top: 1px solid var(--trait); font-size: 12px; color: var(--encre-douce); }
+.pied p { margin: 8px 0 0; }
+.legende { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--encre); }
+.legende span { display: inline-flex; align-items: center; gap: 6px; }
+.legende i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; }
+.legende i.rond { border-radius: 50%; }
+.legende i.trait { height: 3px; border-radius: 0; }
+
+.carte-zone { position: relative; min-height: 0; }
+#carte { position: absolute; inset: 0; }
+.fonds {
+  position: absolute;
+  top: 12px;
+  right: 50px;
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--trait);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.fonds button {
+  padding: 7px 12px;
+  border: 0;
+  background: none;
+  color: var(--encre-douce);
+  font: 600 13px var(--texte);
+  cursor: pointer;
+}
+.fonds button[aria-pressed="true"] { background: var(--encre); color: var(--surface); }
+
+.maplibregl-popup-content {
+  padding: 12px 14px;
+  font: 13px/1.45 var(--texte);
+  color: #1c2420;
+  border-radius: 4px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .18);
+}
+.fiche h3 { margin: 0 0 6px; font: 700 16px/1.1 var(--titre); }
+.fiche dl { display: grid; grid-template-columns: auto auto; gap: 2px 12px; margin: 0; }
+.fiche dt { color: #5a655e; }
+.fiche dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.pastille { display: inline-block; padding: 1px 7px; border-radius: 10px; color: #fff; font-size: 12px; font-weight: 600; }
+
+@media (max-width: 800px) {
+  body { grid-template-columns: 1fr; grid-template-rows: 52dvh 1fr; }
+  .carte-zone { grid-row: 1; }
+  .panneau { grid-row: 2; border-right: 0; border-top: 1px solid var(--trait); }
+  .entete { padding: 14px 16px 8px; }
+  h1 { font-size: 24px; }
+  .chapeau { display: none; }
+  .onglets { padding: 0 8px; }
+  .contenu { padding: 14px 16px 8px; }
+  .pied { padding: 10px 16px; }
+  .fonds { right: 12px; top: auto; bottom: 30px; }
+}

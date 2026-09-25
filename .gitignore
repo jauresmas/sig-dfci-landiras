@@ -1,0 +1,17 @@
+# données téléchargées et intermédiaires (régénérées par la chaîne)
+/data/
+qfield/*.gpkg
+sorties/cartes/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# QGIS
+*.qgz~
+*.qgs~
+
+# outils locaux
+.claude/
+.impeccable/

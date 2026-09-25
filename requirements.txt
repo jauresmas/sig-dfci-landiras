@@ -1,0 +1,11 @@
+# Étapes 00 à 04 et 07 : Python >= 3.10
+geopandas>=1.0
+shapely>=2.0
+rasterio>=1.3
+pyproj>=3.6
+numpy>=1.26
+pandas>=2.0
+scipy>=1.11
+requests>=2.31
+pillow>=10.0
+# Étapes 05 (cartographie) et 06 (projet QField) : PyQGIS, fourni par QGIS >= 3.34
