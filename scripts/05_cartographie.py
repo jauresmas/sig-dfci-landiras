@@ -238,6 +238,7 @@ def mise_en_page(nom, titre, sous_titre, couches, etendue, legende_couches, note
     carte.attemptResize(QgsLayoutSize(300, 277, QgsUnitTypes.LayoutMillimeters))
     carte.setCrs(QgsCoordinateReferenceSystem(C.CRS))
     carte.setLayers(couches)
+    carte.setKeepLayerSet(True)  # sinon la carte affiche toutes les couches visibles à la réouverture
     carte.setExtent(etendue)
     carte.setFrameEnabled(True)
     carte.setFrameStrokeWidth(QgsLayoutMeasurement(0.3))
@@ -374,8 +375,12 @@ def main():
     L = styles()
     ordre = ["eau", "pistes", "incendie", "carreaux", "communes", "old", "diag", "severite", "zone_old", "massif",
              "fond"]
-    for k in ordre:
-        projet.addMapLayer(L[k])
+    racine = projet.layerTreeRoot()
+    for k in ordre:  # de haut en bas : points d'eau au-dessus, fond Plan IGN en dessous
+        projet.addMapLayer(L[k], False)
+        racine.addLayer(L[k])
+    groupe_mep = racine.addGroup("Couches des mises en page (zoom Landiras, atlas)")
+    groupe_mep.setItemVisibilityChecked(False)
     for k in ["diag", "old", "carreaux"]:
         projet.layerTreeRoot().findLayer(L[k].id()).setItemVisibilityChecked(False)
 
@@ -425,8 +430,9 @@ def main():
     old_zoom = couche("old_obligation", "Rayon OLD de 50 m (priorité)", filtre="code_insee = '33225'")
     cats = [QgsRendererCategory(v, remplissage(rgba(col, 110), rgba(col, 255), 0.3), lib) for v, lib, col in PRIORITES]
     old_zoom.setRenderer(QgsCategorizedSymbolRenderer("priorite", cats))
-    for lyr in (parcelles, bati, old_zoom):
+    for lyr in (old_zoom, bati, parcelles):
         projet.addMapLayer(lyr, False)
+        groupe_mep.addLayer(lyr)
     centre = gpd.read_file(BASE, layer="old_obligation", where="code_insee = '33225'")
     cx, cy = centre.geometry.centroid.x.median(), centre.geometry.centroid.y.median()
     zoom = cadrer(QgsRectangle(cx - 1300, cy - 1200, cx + 1300, cy + 1200))
@@ -467,6 +473,7 @@ def main():
     diss = QgsVectorLayer(str(f20), "Carreaux DFCI 20 km", "ogr")
     diss.setRenderer(QgsSingleSymbolRenderer(remplissage("#00000000", "#2b5c8a", 1.0)))
     projet.addMapLayer(diss, False)
+    groupe_mep.addLayer(diss)
 
     layout, carte = mise_en_page(
         "atlas_dfci_20km", "Atlas opérationnel DFCI", "",
